@@ -187,11 +187,11 @@ datatype lexp
   | Plusl lexp lexp
   | LET vname lexp lexp
 
-fun lval :: "lexp \<Rightarrow> state \<Rightarrow> int"
+fun lval :: "lexp \<Rightarrow> state \<Rightarrow> val"
   where "lval (Nl n) s = n"
   | "lval (Vl x) s = s x"
   | "lval (Plusl le1 le2) s = lval le1 s + lval le2 s"
-  | "lval (LET x le1 le2) s = lval le2 (s(x := lval le1 s))"
+  | "lval (LET x le1 le2) s = lval le2 <x := (lval le1 s)>"
     
 fun inline :: "lexp \<Rightarrow> aexp"
   where "inline (Nl n) = N n"
@@ -199,9 +199,5 @@ fun inline :: "lexp \<Rightarrow> aexp"
   | "inline (Plusl le1 le2) = Plus (inline le1) (inline le2)"
   | "inline (LET x le1 le2) = subst x (inline le1) (inline le2)"
 
-lemma "lval lexpr state = aval (inline lexpr) state"
-  apply(induction lexpr arbitrary: state)
-  apply(auto simp: substitution_lemma)
-  done
-
+lemma "inline ( = 
 end
