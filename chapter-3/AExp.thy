@@ -181,7 +181,23 @@ Exercise 3.6. The following type add a LET construct to arithmetic expressions:
               converted form of e2. See exercise 3.3 for more on substitution.
               Prove that inline is correct w.r.t evaluation.
 *}
+datatype lexp 
+  = Nl int
+  | Vl vname
+  | Plusl lexp lexp
+  | LET vname lexp lexp
 
-  
-text {* Boolean Expressions *}
+fun lval :: "lexp \<Rightarrow> state \<Rightarrow> val"
+  where "lval (Nl n) s = n"
+  | "lval (Vl x) s = s x"
+  | "lval (Plusl le1 le2) s = lval le1 s + lval le2 s"
+  | "lval (LET x le1 le2) s = lval le2 <x := (lval le1 s)>"
+    
+fun inline :: "lexp \<Rightarrow> aexp"
+  where "inline (Nl n) = N n"
+  | "inline (Vl x) = V x"
+  | "inline (Plusl le1 le2) = Plus (inline le1) (inline le2)"
+  | "inline (LET x le1 le2) = subst x (inline le1) (inline le2)"
+
+lemma "inline ( = 
 end
