@@ -164,6 +164,30 @@ Exercise 3.5. Define a datatype aexp2 of extended arithmetic expressions that ha
               option. In case of division by 0 let aval2 return None. Division
               on int is the infix div.
 *}
+datatype aexp\<^sub>2 
+  = N\<^sub>2 int 
+  | V\<^sub>2 vname
+  | Plus\<^sub>2 aexp\<^sub>2 aexp\<^sub>2
+  | PostInc vname
+  | Div aexp\<^sub>2 aexp\<^sub>2
+
+fun aval\<^sub>2 :: "aexp\<^sub>2 \<Rightarrow> state \<Rightarrow> (val * state) option"
+  where "aval\<^sub>2 (N\<^sub>2 n) s = Some (n, s)"
+  | "aval\<^sub>2 (V\<^sub>2 x) s = Some (s x, s)"
+  | "aval\<^sub>2 (Plus\<^sub>2 e\<^sub>1 e\<^sub>2) s = (case (aval\<^sub>2 e\<^sub>1 s)
+      of None \<Rightarrow> None
+      | Some (n\<^sub>1, s\<^sub>1) \<Rightarrow> (case aval\<^sub>2 e\<^sub>2 s\<^sub>1
+                           of None \<Rightarrow> None
+                           | Some (n\<^sub>2, s\<^sub>2) \<Rightarrow> Some (n\<^sub>1 + n\<^sub>2, s\<^sub>2)))"
+  | "aval\<^sub>2 (PostInc x) s = (let n = s x + 1 in Some (n, <''x'' := n >))"
+  | "aval\<^sub>2 (Div e\<^sub>1 e\<^sub>2) s 
+      = (case aval\<^sub>2 e\<^sub>1 s
+          of None \<Rightarrow> None
+          |  Some (n\<^sub>1, s\<^sub>1) \<Rightarrow> (case aval\<^sub>2 e\<^sub>2 s\<^sub>1
+                               of None \<Rightarrow> None
+                               |  Some (n\<^sub>2, s\<^sub>2) \<Rightarrow> if n\<^sub>2 = 0 
+                                                  then None
+                                                  else Some (n\<^sub>1 div n\<^sub>2, s\<^sub>2)))"
 
 text{*
 Exercise 3.6. The following type add a LET construct to arithmetic expressions:
